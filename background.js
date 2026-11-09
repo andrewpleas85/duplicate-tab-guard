@@ -6,7 +6,7 @@
 const ALLOW_LIST = ["mail.google.com", "docs.google.com"];
 
 const MODES = ["auto", "manual", "off"];
-let mode = "auto";         // auto: close duplicates as they appear. manual: only on request. off: nothing.
+let mode = "manual";       // manual (default): only on request. auto: close duplicates as they appear. off: nothing.
 let closedCount = 0;       // duplicates closed this browser session
 const webTabs = new Set(); // ids of tabs that already showed a normal web page
 
@@ -16,8 +16,20 @@ const webTabs = new Set(); // ids of tabs that already showed a normal web page
 const TITLE = /^Duplicate Tab Guard \((\w+)\): (\d+) closed/;
 function saveState() {
   chrome.action.setTitle({ title: `Duplicate Tab Guard (${mode}): ${closedCount} closed this session` });
-  chrome.action.setBadgeText({ text: mode === "off" ? "OFF" : closedCount ? String(closedCount) : "" });
-  chrome.action.setBadgeBackgroundColor({ color: mode === "off" ? "#6b7280" : "#2563eb" });
+  refreshBadge();
+}
+
+// Badge = duplicate tabs open right now. Green 1-2, yellow 3-5, red 6+, grey OFF when paused.
+// Debounced: a burst of tab events (e.g. restoring a big session) costs one refresh.
+let badgeTimer;
+function refreshBadge() { clearTimeout(badgeTimer); badgeTimer = setTimeout(drawBadge, 300); }
+async function drawBadge() {
+  await ready;
+  let n = 0;
+  if (mode !== "off") for (const g of await dupGroups()) n += closable(g);
+  const color = mode === "off" ? "#6b7280" : n > 5 ? "#dc2626" : n > 2 ? "#eab308" : "#16a34a";
+  chrome.action.setBadgeText({ text: mode === "off" ? "OFF" : n ? String(n) : "" });
+  chrome.action.setBadgeBackgroundColor({ color });
 }
 
 function parse(url) {
@@ -61,18 +73,18 @@ async function focus(tab) {
   await chrome.windows.update(tab.windowId, { focused: true }).catch(() => {});
 }
 
-chrome.tabs.onCreated.addListener(() => {}); // wakes the worker early so `ready` can run
+chrome.tabs.onCreated.addListener(refreshBadge); // also wakes the worker early so `ready` can run
 
 chrome.tabs.onUpdated.addListener(async (id, change) => {
   if (!change.url) return; // wait for the final URL of a loading tab
   await ready;
   const wasWeb = webTabs.has(id);
   if (isWeb(change.url)) webTabs.add(id); else webTabs.delete(id);
-  if (mode !== "auto" || !isManaged(change.url)) return;
+  if (mode !== "auto" || !isManaged(change.url)) return refreshBadge();
 
   const same = (await chrome.tabs.query({})).filter((t) => t.url === change.url);
   const self = same.find((t) => t.id === id);
-  if (!self || same.length < 2) return;
+  if (!self || same.length < 2) return refreshBadge();
   const others = same.filter((t) => t.id !== id).sort((a, b) => a.id - b.id);
 
   if (wasWeb) {
@@ -84,7 +96,13 @@ chrome.tabs.onUpdated.addListener(async (id, change) => {
   }
 });
 
-chrome.tabs.onRemoved.addListener((id) => webTabs.delete(id));
+chrome.tabs.onRemoved.addListener((id) => { webTabs.delete(id); refreshBadge(); });
+
+// How many tabs of a duplicate group would close (never the keeper, never pinned).
+function closable(g) {
+  const keeper = g.find((t) => t.pinned) || g[0];
+  return g.filter((t) => t.id !== keeper.id && !t.pinned).length;
+}
 
 // Groups of exact duplicates across all windows, oldest first.
 async function dupGroups() {
@@ -119,10 +137,11 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     if (msg.type === "clean") await sweep(msg.urls);
     const groups = (await dupGroups()).map((g) => {
       const keeper = g.find((t) => t.pinned) || g[0];
-      const close = g.filter((t) => t.id !== keeper.id && !t.pinned).length;
-      return { title: keeper.title, url: keeper.url, copies: g.length, close };
+      return { title: keeper.title, url: keeper.url, copies: g.length, close: closable(g) };
     });
     reply({ mode, closed: closedCount, groups: groups.filter((g) => g.close > 0) });
   })();
   return true; // reply is async
 });
+
+ready.then(refreshBadge); // badge is right after the worker wakes

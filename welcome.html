@@ -6,23 +6,25 @@
 <style>
   body { font: 16px system-ui, sans-serif; max-width: 40em; margin: 6vh auto; padding: 0 1em; color: #1f2937; }
   ul { list-style: none; padding: 0; margin: 1em 0; max-height: 45vh; overflow-y: auto; border: 1px solid #d1d5db; border-radius: 8px; }
-  li { padding: .6em .9em; border-bottom: 1px solid #e5e7eb; }
+  li { padding: .6em .9em; border-bottom: 1px solid #e5e7eb; display: flex; gap: .8em; align-items: center; }
   li:last-child { border-bottom: 0; }
+  li > div { flex: 1; min-width: 0; }
   .url { font-size: .8em; color: #6b7280; word-break: break-all; }
   .note { font-size: .8em; color: #ea580c; margin-top: .15em; }
-  button { font: inherit; padding: .5em 1.1em; margin-right: .5em; border-radius: 6px; border: 1px solid #2563eb; cursor: pointer; }
-  #yes { background: #2563eb; color: #fff; }
-  #no { background: #fff; color: #2563eb; }
-  @media (prefers-color-scheme: dark) { ul, li { border-color: #374151; } .url { color: #9ca3af; } body { background: #111827; color: #e5e7eb; } #no { background: #111827; color: #93c5fd; border-color: #93c5fd; } }
+  button { font: inherit; padding: .5em 1.1em; margin-right: .5em; border-radius: 6px; border: 1px solid #2563eb; background: #fff; color: #2563eb; cursor: pointer; }
+  button.primary { background: #2563eb; color: #fff; }
+  li button { padding: .3em .8em; margin: 0 0 0 .3em; font-size: .85em; white-space: nowrap; }
+  @media (prefers-color-scheme: dark) { ul, li { border-color: #374151; } .url { color: #9ca3af; } body { background: #111827; color: #e5e7eb; } button:not(.primary) { background: #111827; color: #93c5fd; border-color: #93c5fd; } }
 </style>
 </head>
 <body>
-<h1>Duplicate Tab Guard is on</h1>
-<p>From now on, opening a page you already have open switches to the existing tab instead.</p>
+<h1>Duplicate Tab Guard is installed</h1>
+<p>It starts in <strong>Manual</strong> mode: nothing closes unless you say so.</p>
 <p id="msg">Checking your open tabs...</p>
 <ul id="list" hidden></ul>
 <p id="buttons" hidden>
-  <button id="yes">Close duplicates now</button>
+  <button id="all" class="primary">Close all duplicates</button>
+  <button id="one">Review one by one</button>
   <button id="no">Keep them</button>
 </p>
 <p><small>Click the toolbar icon any time to switch between Automatic, Manual and Off, pick which duplicates to close, or see how many have been closed. Pinned tabs are never closed.</small></p>

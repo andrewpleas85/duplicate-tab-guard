@@ -16,6 +16,12 @@ function render(state) {
     l.classList.toggle("on", l.dataset.m === state.mode);
   }
   $("hint").textContent = HINTS[state.mode];
+  const dups = groups.reduce((n, g) => n + g.close, 0);  // same colors as the toolbar badge
+  const pill = $("pill");
+  pill.hidden = state.mode === "off";
+  pill.textContent = `${plural(dups, "duplicate")} open`;
+  pill.className = dups > 5 ? "" : dups > 2 ? "warn" : "";
+  pill.style.background = dups > 5 ? "#dc2626" : dups > 2 ? "#eab308" : "#16a34a";
   $("stats").textContent = `${plural(state.closed, "duplicate tab")} closed this browser session.`;
 
   const show = state.mode !== "off" && groups.length > 0;

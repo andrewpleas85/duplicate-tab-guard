@@ -4,7 +4,7 @@ Free, unlisted. Paste these into the Developer Dashboard. Sections follow the or
 
 **Name:** Duplicate Tab Guard
 
-**Tagline:** One tab per page. Automatic, manual, or off. Nothing leaves your browser.
+**Tagline:** One tab per page. Manual by default, automatic if you want. Nothing leaves your browser.
 
 **Summary (<=132 chars, same as manifest description):**
 Keeps one tab per exact URL. Local only, no network, no data collected.
@@ -15,26 +15,26 @@ Keeps one tab per exact URL. Local only, no network, no data collected.
 
 Stop tab clutter without giving up control.
 
-Duplicate Tab Guard keeps exactly one tab per web page. Open a link you already have open, in any window, and you land on the tab you already had instead of getting a second copy. Prefer to decide for yourself? Switch to Manual mode and pick which duplicates to merge.
+Duplicate Tab Guard shows you the duplicate tabs you have open and lets you pick which ones to merge. Want it hands-off? Switch to Automatic mode and it keeps exactly one tab per web page: open a link you already have open, in any window, and you land on the tab you already had instead of getting a second copy.
 
 Tired of finding the same page open five times, in three windows, and not knowing which one has your scroll position?
 
 KEY FEATURES
 
-Automatic mode (the default)
-Set it and forget it. Open a page that is already open and the new tab closes while the original comes to the front, even if it is in another window. Navigate a tab to a page that is open elsewhere and the other copies close.
+Automatic mode
+Switch it on and it is hands-off. Set it and forget it. Open a page that is already open and the new tab closes while the original comes to the front, even if it is in another window. Navigate a tab to a page that is open elsewhere and the other copies close.
 
-Manual mode
+Manual mode (the default)
 Nothing closes by itself. Click the toolbar icon and see every set of identical tabs, with page titles and URLs. Untick any you want to keep and click Merge selected. The oldest tab of each set is kept.
 
 Off switch
 Pause everything with one click. The badge shows OFF so you always know.
 
 Clean up on install
-The first time you install it, a welcome page lists the duplicates you already have open and asks whether to close them. Say no and your existing tabs are left alone.
+The first time you install it, a welcome page lists the duplicates you already have open and asks whether to close them all at once, review them one by one, or leave them alone.
 
-Session stats
-See how many duplicate tabs were closed during this browser session, in the popup and on the toolbar badge.
+Live count and stats
+The toolbar badge shows how many duplicate tabs are open right now: green for 1-2, yellow for 3-5, red for 6 or more. The popup shows the same number, plus how many duplicates were closed during this browser session.
 
 Safe by design
 Pinned tabs are never closed, and a pinned tab always wins as the one to keep. Browser pages (chrome://, new tab) are never touched. Matching is on the exact URL, query string and hash included, so two different searches or two different articles are never mixed up. Gmail and Google Docs are allow-listed (multiple tabs allowed), editable in one line at the top of background.js in the source.
@@ -68,5 +68,5 @@ Andrew must host PRIVACY.md at a public URL (a public GitHub repo page for this 
 
 1. The popup in Manual mode with a few duplicate sets listed.
 2. The welcome page listing existing duplicates.
-3. The popup in Automatic mode showing the session count.
+3. The popup showing the modes and the session count.
 4. A browser window with the badge showing a count.
