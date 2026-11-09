@@ -14,7 +14,7 @@ Private Chrome extension (Manifest V3) that keeps one tab per exact URL. Owner: 
 - `manifest.json`: version 1.1.0, icons, action default_icon.
 - `background.js`: all logic (144 lines, near the ~150 cap). `welcome.html/js` (install prompt) and `popup.html/js` (modes UI) are display only. `ALLOW_LIST` constant at the top (mail.google.com, docs.google.com).
 - `images/make_icons.py`: pure-stdlib generator for icon16/32/48/128.png (Pillow is not installed). Run `python3 images/make_icons.py`.
-- `STORE_LISTING.md`, `PRIVACY.md`: copy for the Chrome Web Store dashboard. PRIVACY.md still has a placeholder for Andrew's developer email.
+- `STORE_LISTING.md`, `PRIVACY.md`: copy for the Chrome Web Store dashboard.
 - `README.md`: unpacked install steps.
 
 ## Behavior summary
