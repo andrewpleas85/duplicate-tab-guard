@@ -1,12 +1,24 @@
 "use strict";
 // Duplicate Tab Guard. Keeps one tab per exact URL (query and hash included).
-// No network, no storage, no logging of URLs. Only state: in-memory sets/count.
+// No network, no storage, no logging of URLs. Only state: in-memory sets, mode and count.
 
 // Hosts where duplicate tabs are allowed. Subdomains match too. Edit by hand.
 const ALLOW_LIST = ["mail.google.com", "docs.google.com"];
 
-let closedCount = 0;      // in-memory count of duplicates closed
+const MODES = ["auto", "manual", "off"];
+let mode = "auto";         // auto: close duplicates as they appear. manual: only on request. off: nothing.
+let closedCount = 0;       // duplicates closed this browser session
 const webTabs = new Set(); // ids of tabs that already showed a normal web page
+
+// Mode and count live in the toolbar button's tooltip. The browser keeps that while it
+// runs, so it survives the service worker sleeping, needs no storage permission, and
+// resets when the browser restarts (one browser session).
+const TITLE = /^Duplicate Tab Guard \((\w+)\): (\d+) closed/;
+function saveState() {
+  chrome.action.setTitle({ title: `Duplicate Tab Guard (${mode}): ${closedCount} closed this session` });
+  chrome.action.setBadgeText({ text: mode === "off" ? "OFF" : closedCount ? String(closedCount) : "" });
+  chrome.action.setBadgeBackgroundColor({ color: mode === "off" ? "#6b7280" : "#2563eb" });
+}
 
 function parse(url) {
   try { return new URL(url); } catch { return null; }
@@ -26,8 +38,10 @@ function isManaged(url) {
 }
 
 // Rebuilt whenever the service worker wakes up, so no storage permission needed.
-const ready = chrome.tabs.query({}).then((tabs) => {
+const ready = Promise.all([chrome.tabs.query({}), chrome.action.getTitle({})]).then(([tabs, title]) => {
   for (const t of tabs) if (isWeb(t.url)) webTabs.add(t.id);
+  const m = TITLE.exec(title);
+  if (m && MODES.includes(m[1])) { mode = m[1]; closedCount = +m[2]; }
 });
 
 // Close every tab in `group` except the keeper. Pinned tabs are never closed,
@@ -38,7 +52,7 @@ async function collapse(group, preferred) {
   const doomed = group.filter((t) => t.id !== keeper.id && !t.pinned);
   await Promise.all(doomed.map((t) => chrome.tabs.remove(t.id).catch(() => {})));
   closedCount += doomed.length;
-  chrome.action.setBadgeText({ text: closedCount ? String(closedCount) : "" });
+  saveState();
   return keeper;
 }
 
@@ -54,7 +68,7 @@ chrome.tabs.onUpdated.addListener(async (id, change) => {
   await ready;
   const wasWeb = webTabs.has(id);
   if (isWeb(change.url)) webTabs.add(id); else webTabs.delete(id);
-  if (!isManaged(change.url)) return;
+  if (mode !== "auto" || !isManaged(change.url)) return;
 
   const same = (await chrome.tabs.query({})).filter((t) => t.url === change.url);
   const self = same.find((t) => t.id === id);
@@ -84,27 +98,31 @@ async function dupGroups() {
   return [...groups.values()].filter((g) => g.length > 1).map((g) => g.sort((a, b) => a.id - b.id));
 }
 
-// Close all exact duplicates in all windows, keeping the oldest (or a pinned tab).
-async function sweep() {
-  for (const g of await dupGroups()) await collapse(g, g[0]);
+// Close duplicates, keeping the oldest (or a pinned tab). `urls` limits it to those pages.
+async function sweep(urls) {
+  for (const g of await dupGroups()) if (!urls || urls.includes(g[0].url)) await collapse(g, g[0]);
 }
-
-chrome.action.onClicked.addListener(sweep); // toolbar icon
 
 // Fresh install only (not updates): ask once, on a page bundled with the extension.
 const WELCOME = chrome.runtime.getURL("welcome.html");
+const POPUP = chrome.runtime.getURL("popup.html");
 chrome.runtime.onInstalled.addListener((d) => {
   if (d.reason === "install") chrome.tabs.create({ url: WELCOME });
 });
+
+// Only our own two pages may talk to us. Every message gets the current state back.
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
-  if (sender.url !== WELCOME) return;
-  if (msg === "count") {
-    dupGroups().then((gs) => reply(gs.reduce((n, g) => {
+  if (sender.url !== WELCOME && sender.url !== POPUP) return;
+  (async () => {
+    await ready;
+    if (msg.type === "mode" && MODES.includes(msg.mode)) { mode = msg.mode; saveState(); }
+    if (msg.type === "clean") await sweep(msg.urls);
+    const groups = (await dupGroups()).map((g) => {
       const keeper = g.find((t) => t.pinned) || g[0];
-      return n + g.filter((t) => t.id !== keeper.id && !t.pinned).length;
-    }, 0)));
-  } else if (msg === "clean") {
-    sweep().then(() => reply(closedCount));
-  } else return;
+      const close = g.filter((t) => t.id !== keeper.id && !t.pinned).length;
+      return { title: keeper.title, url: keeper.url, copies: g.length, close };
+    });
+    reply({ mode, closed: closedCount, groups: groups.filter((g) => g.close > 0) });
+  })();
   return true; // reply is async
 });

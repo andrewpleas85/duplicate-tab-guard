@@ -12,7 +12,7 @@ Private Chrome extension (Manifest V3) that keeps one tab per exact URL. Owner: 
 
 ## Files
 - `manifest.json`: version 1.1.0, icons, action default_icon.
-- `background.js`: all logic. `ALLOW_LIST` constant at the top (mail.google.com, docs.google.com).
+- `background.js`: all logic (128 lines). `welcome.html/js` (install prompt) and `popup.html/js` (modes UI) are display only. `ALLOW_LIST` constant at the top (mail.google.com, docs.google.com).
 - `images/make_icons.py`: pure-stdlib generator for icon16/32/48/128.png (Pillow is not installed). Run `python3 images/make_icons.py`.
 - `STORE_LISTING.md`, `PRIVACY.md`: copy for the Chrome Web Store dashboard. PRIVACY.md still has a placeholder for Andrew's developer email.
 - `README.md`: unpacked install steps.
@@ -20,14 +20,16 @@ Private Chrome extension (Manifest V3) that keeps one tab per exact URL. Owner: 
 ## Behavior summary
 - New tab opening an already-open exact URL: close the new tab, focus the original and its window.
 - Existing tab navigating into a duplicate: close the other copies, keep the navigated tab.
-- Toolbar icon click: close all duplicates across windows, keep oldest (lowest tab id). Badge shows in-memory count closed.
+- Toolbar icon opens popup.html with modes: Automatic (default, rules above), Manual (nothing auto-closes; popup lists duplicate groups, user ticks which to merge, oldest/pinned kept), Off (badge OFF). Popup also shows closed count this browser session.
+- Mode and closed count are stored in the action tooltip (title "Duplicate Tab Guard (mode): N closed this session"), read back via chrome.action.getTitle when the worker wakes. No storage permission. Resets on browser restart.
+- Fresh install opens welcome.html listing existing duplicates with Close/Keep buttons. Only welcome.html and popup.html may message background.js (sender.url check).
 - Never touched: non-http(s) pages, pinned tabs (a pinned tab wins as keeper), tabs with no final URL, allow-listed hosts.
 - Known edge: with no storage permission, the "already showed a web page" set is rebuilt when the service worker wakes. A rare wake-up race can close the original instead of the new tab (still ends with one tab).
 
 ## Status
 - v1.0.0 built and committed (unpacked build Andrew runs). Browser acceptance tests (5x example.com, two windows, navigate-into-duplicate, Wikipedia Chicago vs Chicago_Bulls, two Gmail tabs, icon click with 5 pairs over 2 windows) have NOT been run; Claude cannot drive Chrome. Privacy grep was zero hits; `node --check` passes.
 - v1.1.0 packaging, Part A: done = icons generated (icon128 shown to Andrew for approval, awaiting his OK), manifest changes, STORE_LISTING.md, PRIVACY.md.
-- **Next, after Andrew approves the icon:** create `dist/duplicate-tab-guard-1.1.0.zip` containing ONLY manifest.json, background.js, welcome.html, welcome.js, images/icon16.png, icon32.png, icon48.png, icon128.png at the zip root (keep images/ folder for icons; no README/docs/.git/scripts). Then report: unzip listing with sizes, packaged manifest.json, privacy grep on packaged files (expect zero hits), `node --check background.js`. Then tell Andrew Part B is his.
+- **Next, after Andrew approves the icon:** create `dist/duplicate-tab-guard-1.1.0.zip` containing ONLY manifest.json, background.js, welcome.html, welcome.js, popup.html, popup.js, images/icon16.png, icon32.png, icon48.png, icon128.png at the zip root (keep images/ folder for icons; no README/docs/.git/scripts). Then report: unzip listing with sizes, packaged manifest.json, privacy grep on packaged files (expect zero hits), `node --check background.js`. Then tell Andrew Part B is his.
 - Part B (Andrew only): 1280x800 screenshot, developer registration ($5), create unlisted free listing, host PRIVACY.md publicly and add his email, then replace unpacked copy with Store install and re-test.
 
 ## Conventions

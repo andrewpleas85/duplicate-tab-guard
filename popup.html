@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Duplicate Tab Guard</title>
+<style>
+  body { font: 14px system-ui, sans-serif; width: 360px; margin: 0; padding: 12px; color: #1f2937; background: #fff; }
+  h1 { font-size: 15px; margin: 0 0 10px; }
+  #modes { display: flex; border: 1px solid #2563eb; border-radius: 6px; overflow: hidden; }
+  #modes label { flex: 1; text-align: center; padding: 6px 0; cursor: pointer; color: #2563eb; }
+  #modes input { display: none; }
+  #modes label.on { background: #2563eb; color: #fff; }
+  #modes label.on.off { background: #6b7280; }
+  #hint, #stats { color: #6b7280; font-size: 12px; margin: 8px 0; }
+  ul { list-style: none; padding: 0; margin: 8px 0; max-height: 260px; overflow-y: auto; border: 1px solid #d1d5db; border-radius: 6px; }
+  li { display: flex; gap: 8px; padding: 6px 8px; border-bottom: 1px solid #e5e7eb; }
+  li:last-child { border-bottom: 0; }
+  li div { min-width: 0; flex: 1; }
+  .t, .u { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .u { font-size: 11px; color: #6b7280; }
+  .n { font-size: 11px; color: #ea580c; }
+  button { font: inherit; padding: 6px 12px; border-radius: 6px; border: 1px solid #2563eb; background: #2563eb; color: #fff; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  .row { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+  .link { background: none; border: 0; color: #2563eb; padding: 0; font-size: 12px; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #111827; color: #e5e7eb; } ul, li { border-color: #374151; }
+    .u, #hint, #stats { color: #9ca3af; } #modes label { color: #93c5fd; } .link { color: #93c5fd; }
+  }
+</style>
+</head>
+<body>
+<h1>Duplicate Tab Guard</h1>
+<div id="modes">
+  <label data-m="auto"><input type="radio" name="m">Automatic</label>
+  <label data-m="manual"><input type="radio" name="m">Manual</label>
+  <label data-m="off" class="off"><input type="radio" name="m">Off</label>
+</div>
+<div id="hint"></div>
+<div id="found" hidden>
+  <div class="row"><span id="count"></span><button id="all" class="link">Select none</button></div>
+  <ul id="list"></ul>
+  <button id="merge">Merge selected</button>
+</div>
+<div id="stats"></div>
+<script src="popup.js"></script>
+</body>
+</html>

@@ -1,25 +1,56 @@
 # Chrome Web Store listing: Duplicate Tab Guard
 
-Free, unlisted. Paste these into the Developer Dashboard.
+Free, unlisted. Paste these into the Developer Dashboard. Sections follow the order of a Store page: tagline, overview, key features, details, privacy.
 
 **Name:** Duplicate Tab Guard
+
+**Tagline:** One tab per page. Automatic, manual, or off. Nothing leaves your browser.
 
 **Summary (<=132 chars, same as manifest description):**
 Keeps one tab per exact URL. Local only, no network, no data collected.
 
 **Category:** Productivity
 
-## Detailed description
+## Detailed description (paste into the Description box)
 
-Duplicate Tab Guard keeps exactly one tab per web page.
+Stop tab clutter without giving up control.
 
-Open a link that is already open - in any Chrome window - and the new tab closes and the existing tab is focused instead. Navigate a tab to a page that is already open somewhere else and the duplicates collapse to one. After install there are no prompts or confirmations: it just happens.
+Duplicate Tab Guard keeps exactly one tab per web page. Open a link you already have open, in any window, and you land on the tab you already had instead of getting a second copy. Prefer to decide for yourself? Switch to Manual mode and pick which duplicates to merge.
 
-When you first install it, a welcome page offers to close any duplicates you already have open, or leave them. You can clean up again at any time by clicking the toolbar icon: every tab with the same exact URL collapses to the oldest one, across all windows. A badge on the icon shows how many duplicates have been closed.
+Tired of finding the same page open five times, in three windows, and not knowing which one has your scroll position?
 
-Duplicates are matched on the exact URL, including query string and hash. Pinned tabs are never closed. Gmail and Google Docs are allow-listed (multiple tabs allowed), editable in one line at the top of background.js.
+KEY FEATURES
 
-Privacy: this extension runs entirely on your machine. It uses only the Chrome tabs permission - no site access, no content scripts, no storage, no network calls, no analytics, no data collected or sent anywhere. The full source is a few short files you can read in minutes.
+Automatic mode (the default)
+Set it and forget it. Open a page that is already open and the new tab closes while the original comes to the front, even if it is in another window. Navigate a tab to a page that is open elsewhere and the other copies close.
+
+Manual mode
+Nothing closes by itself. Click the toolbar icon and see every set of identical tabs, with page titles and URLs. Untick any you want to keep and click Merge selected. The oldest tab of each set is kept.
+
+Off switch
+Pause everything with one click. The badge shows OFF so you always know.
+
+Clean up on install
+The first time you install it, a welcome page lists the duplicates you already have open and asks whether to close them. Say no and your existing tabs are left alone.
+
+Session stats
+See how many duplicate tabs were closed during this browser session, in the popup and on the toolbar badge.
+
+Safe by design
+Pinned tabs are never closed, and a pinned tab always wins as the one to keep. Browser pages (chrome://, new tab) are never touched. Matching is on the exact URL, query string and hash included, so two different searches or two different articles are never mixed up. Gmail and Google Docs are allow-listed (multiple tabs allowed), editable in one line at the top of background.js in the source.
+
+PRIVACY FIRST
+
+It runs entirely on your machine. The only permission is Chrome's tabs permission, used to read tab URLs in memory so duplicates can be spotted. No site access, no content scripts, no storage, no network requests, no analytics, no accounts, no ads. No data is collected or sent anywhere. The mode and the session count are kept by the browser only until you restart it.
+
+Free. No payment, no sign-in.
+
+## Details (for reference)
+
+- Version: 1.1.0
+- Languages: English
+- Permissions: tabs only
+- Price: free
 
 ## Single-purpose statement (Privacy tab)
 
@@ -27,8 +58,15 @@ The extension's single purpose is to detect tabs with identical URLs and close t
 
 ## Permission justification: tabs
 
-The tabs permission is required to list open tabs and their URLs across all Chrome windows, detect exact-URL duplicates when a tab is created or navigated, focus the tab that is kept, and close the duplicate tabs. URLs are compared in memory only. Nothing is read from page content, stored, logged, or transmitted.
+The tabs permission is required to list open tabs and their URLs across all Chrome windows, detect exact-URL duplicates when a tab is created or navigated, focus the tab that is kept, and close the duplicate tabs. URLs and page titles are used in memory only, and are shown only to the user in the extension's own popup and welcome page so they can choose which duplicates to close. Nothing is read from page content, stored, logged, or transmitted.
 
 ## Privacy policy URL
 
 Andrew must host PRIVACY.md at a public URL (a public GitHub repo page for this project is fine) and paste that URL into the dashboard Privacy tab. Add the developer contact email to PRIVACY.md first.
+
+## Screenshots to take (1280x800, up to 5)
+
+1. The popup in Manual mode with a few duplicate sets listed.
+2. The welcome page listing existing duplicates.
+3. The popup in Automatic mode showing the session count.
+4. A browser window with the badge showing a count.
