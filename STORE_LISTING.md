@@ -13,13 +13,13 @@ Keeps one tab per exact URL. Local only, no network, no data collected.
 
 Duplicate Tab Guard keeps exactly one tab per web page.
 
-Open a link that is already open - in any Chrome window - and the new tab closes and the existing tab is focused instead. Navigate a tab to a page that is already open somewhere else and the duplicates collapse to one. No prompts, no confirmations: it just happens.
+Open a link that is already open - in any Chrome window - and the new tab closes and the existing tab is focused instead. Navigate a tab to a page that is already open somewhere else and the duplicates collapse to one. After install there are no prompts or confirmations: it just happens.
 
-Click the toolbar icon to clean up duplicates you already have: every tab with the same exact URL collapses to the oldest one, across all windows. A badge on the icon shows how many duplicates have been closed.
+When you first install it, a welcome page offers to close any duplicates you already have open, or leave them. You can clean up again at any time by clicking the toolbar icon: every tab with the same exact URL collapses to the oldest one, across all windows. A badge on the icon shows how many duplicates have been closed.
 
 Duplicates are matched on the exact URL, including query string and hash. Pinned tabs are never closed. Gmail and Google Docs are allow-listed (multiple tabs allowed), editable in one line at the top of background.js.
 
-Privacy: this extension runs entirely on your machine. It uses only the Chrome tabs permission - no site access, no content scripts, no storage, no network calls, no analytics, no data collected or sent anywhere. The full source is under 100 lines.
+Privacy: this extension runs entirely on your machine. It uses only the Chrome tabs permission - no site access, no content scripts, no storage, no network calls, no analytics, no data collected or sent anywhere. The full source is a few short files you can read in minutes.
 
 ## Single-purpose statement (Privacy tab)
 

@@ -27,9 +27,9 @@ Private Chrome extension (Manifest V3) that keeps one tab per exact URL. Owner: 
 ## Status
 - v1.0.0 built and committed (unpacked build Andrew runs). Browser acceptance tests (5x example.com, two windows, navigate-into-duplicate, Wikipedia Chicago vs Chicago_Bulls, two Gmail tabs, icon click with 5 pairs over 2 windows) have NOT been run; Claude cannot drive Chrome. Privacy grep was zero hits; `node --check` passes.
 - v1.1.0 packaging, Part A: done = icons generated (icon128 shown to Andrew for approval, awaiting his OK), manifest changes, STORE_LISTING.md, PRIVACY.md.
-- **Next, after Andrew approves the icon:** create `dist/duplicate-tab-guard-1.1.0.zip` containing ONLY manifest.json, background.js, images/icon16.png, icon32.png, icon48.png, icon128.png at the zip root (no folder, no README/docs/.git/scripts). Then report: unzip listing with sizes, packaged manifest.json, privacy grep on packaged files (expect zero hits), `node --check background.js`. Then tell Andrew Part B is his.
+- **Next, after Andrew approves the icon:** create `dist/duplicate-tab-guard-1.1.0.zip` containing ONLY manifest.json, background.js, welcome.html, welcome.js, images/icon16.png, icon32.png, icon48.png, icon128.png at the zip root (keep images/ folder for icons; no README/docs/.git/scripts). Then report: unzip listing with sizes, packaged manifest.json, privacy grep on packaged files (expect zero hits), `node --check background.js`. Then tell Andrew Part B is his.
 - Part B (Andrew only): 1280x800 screenshot, developer registration ($5), create unlisted free listing, host PRIVACY.md publicly and add his email, then replace unpacked copy with Store install and re-test.
 
 ## Conventions
-- Commit message trailer: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`
+- No Co-Authored-By trailer or other attribution lines in commit messages (Andrew's call).
 - Commit only when Andrew asks.

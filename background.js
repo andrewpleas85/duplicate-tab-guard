@@ -72,8 +72,8 @@ chrome.tabs.onUpdated.addListener(async (id, change) => {
 
 chrome.tabs.onRemoved.addListener((id) => webTabs.delete(id));
 
-// Toolbar icon: close all exact duplicates in all windows, keeping the oldest.
-chrome.action.onClicked.addListener(async () => {
+// Groups of exact duplicates across all windows, oldest first.
+async function dupGroups() {
   await ready;
   const groups = new Map();
   for (const t of await chrome.tabs.query({})) {
@@ -81,8 +81,30 @@ chrome.action.onClicked.addListener(async () => {
     if (!groups.has(t.url)) groups.set(t.url, []);
     groups.get(t.url).push(t);
   }
-  for (const g of groups.values()) {
-    g.sort((a, b) => a.id - b.id);
-    await collapse(g, g[0]);
-  }
+  return [...groups.values()].filter((g) => g.length > 1).map((g) => g.sort((a, b) => a.id - b.id));
+}
+
+// Close all exact duplicates in all windows, keeping the oldest (or a pinned tab).
+async function sweep() {
+  for (const g of await dupGroups()) await collapse(g, g[0]);
+}
+
+chrome.action.onClicked.addListener(sweep); // toolbar icon
+
+// Fresh install only (not updates): ask once, on a page bundled with the extension.
+const WELCOME = chrome.runtime.getURL("welcome.html");
+chrome.runtime.onInstalled.addListener((d) => {
+  if (d.reason === "install") chrome.tabs.create({ url: WELCOME });
+});
+chrome.runtime.onMessage.addListener((msg, sender, reply) => {
+  if (sender.url !== WELCOME) return;
+  if (msg === "count") {
+    dupGroups().then((gs) => reply(gs.reduce((n, g) => {
+      const keeper = g.find((t) => t.pinned) || g[0];
+      return n + g.filter((t) => t.id !== keeper.id && !t.pinned).length;
+    }, 0)));
+  } else if (msg === "clean") {
+    sweep().then(() => reply(closedCount));
+  } else return;
+  return true; // reply is async
 });

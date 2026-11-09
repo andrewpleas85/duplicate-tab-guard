@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the extension icons (pure standard library, no Pillow needed).
 
-Two overlapping browser-tab shapes (front one up-left, small x on the back one),
+Two overlapping browser-window shapes (title bar line) (front one up-left, small x on the back one),
 transparent background, artwork is 75% of the canvas (16px padding at 128px).
 Run from anywhere: python3 images/make_icons.py
 """
@@ -18,10 +18,12 @@ def rrect(x, y, x0, y0, x1, y1, r):
     return (x - cx) ** 2 + (y - cy) ** 2 <= r * r
 
 def tab(x, y, x0, y0, w, h, grow=0):
-    # tab body plus a small header bump at its top-left; art units (0..96)
+    # browser-window body; art units (0..96)
     x0, y0, x1, y1 = x0 - grow, y0 - grow, x0 + w + grow, y0 + h + grow
-    return (rrect(x, y, x0, y0 + 12, x1, y1, 6 + grow) or
-            rrect(x, y, x0, y0, x0 + 32 + grow, y0 + 20, 6 + grow))
+    return rrect(x, y, x0, y0, x1, y1, 6 + grow)
+
+def bar(x, y, x0, y0):  # title bar divider line
+    return x0 + 6 <= x <= x0 + 54 and y0 + 13 <= y <= y0 + 18
 
 def in_x(x, y, cx=81, cy=72, d=8, t=4.5):
     for sign in (1, -1):  # distance to each diagonal segment
@@ -32,9 +34,9 @@ def in_x(x, y, cx=81, cy=72, d=8, t=4.5):
 
 def sample(x, y):  # art coordinates -> (r, g, b, a) or None
     if tab(x, y, 0, 0, 60, 60):
-        return BLUE
+        return WHITE if bar(x, y, 0, 0) else BLUE
     if tab(x, y, 36, 36, 60, 60) and not tab(x, y, 0, 0, 60, 60, grow=5):
-        return WHITE if in_x(x, y) else ORANGE
+        return WHITE if (in_x(x, y) or bar(x, y, 36, 36)) else ORANGE
     return None
 
 def render(size):
