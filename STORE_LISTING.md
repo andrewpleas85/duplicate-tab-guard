@@ -15,17 +15,17 @@ Keeps one tab per exact URL. Local only, no network, no data collected.
 
 Stop tab clutter without giving up control.
 
-Duplicate Tab Guard shows you the duplicate tabs you have open and lets you pick which ones to merge. Want it hands-off? Switch to Automatic mode and it keeps exactly one tab per web page: open a link you already have open, in any window, and you land on the tab you already had instead of getting a second copy.
+Duplicate Tab Guard shows you the duplicate tabs you have open and lets you pick which ones to merge. Want it hands-off? Switch to Automatic mode and it keeps exactly one tab per web page: open a link you already have open, in any window, and the older copy closes, so you always land on the freshest page instead of a stale one.
 
-Tired of finding the same page open five times, in three windows, and not knowing which one has your scroll position?
+Tired of finding the same page open five times, in three windows, and not knowing which one is current?
 
 KEY FEATURES
 
 Automatic mode
-Switch it on and it is hands-off. Set it and forget it. Open a page that is already open and the new tab closes while the original comes to the front, even if it is in another window. Navigate a tab to a page that is open elsewhere and the other copies close.
+Switch it on and it is hands-off. Set it and forget it. Open a page that is already open and the older copy closes and you land on the new one, even if the old copy was in another window. Navigate a tab to a page that is open elsewhere and the other copies close.
 
 Manual mode (the default)
-Nothing closes by itself. Click the toolbar icon and see every set of identical tabs, with page titles and URLs. Untick any you want to keep and click Merge selected. The oldest tab of each set is kept.
+Nothing closes by itself. Click the toolbar icon and see every set of identical tabs, with page titles and URLs. Untick any you want to keep and click Merge selected. The newest tab of each set is kept, so you always see the latest version of a page.
 
 Off switch
 Pause everything with one click. The badge shows OFF so you always know.

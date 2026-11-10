@@ -1,6 +1,6 @@
 "use strict";
 // Duplicate Tab Guard. Keeps one tab per exact URL (query and hash included).
-// No network, no storage, no logging of URLs. Only state: in-memory sets, mode and count.
+// No network, no storage, no logging of URLs. Only state: mode and count, in memory.
 
 // Hosts where duplicate tabs are allowed. Subdomains match too. Edit by hand.
 const ALLOW_LIST = ["mail.google.com", "docs.google.com"];
@@ -8,7 +8,6 @@ const ALLOW_LIST = ["mail.google.com", "docs.google.com"];
 const MODES = ["auto", "manual", "off"];
 let mode = "manual";       // manual (default): only on request. auto: close duplicates as they appear. off: nothing.
 let closedCount = 0;       // duplicates closed this browser session
-const webTabs = new Set(); // ids of tabs that already showed a normal web page
 
 // Mode and count live in the toolbar button's tooltip. The browser keeps that while it
 // runs, so it survives the service worker sleeping, needs no storage permission, and
@@ -49,9 +48,8 @@ function isManaged(url) {
   return !ALLOW_LIST.some((h) => host === h || host.endsWith("." + h));
 }
 
-// Rebuilt whenever the service worker wakes up, so no storage permission needed.
-const ready = Promise.all([chrome.tabs.query({}), chrome.action.getTitle({})]).then(([tabs, title]) => {
-  for (const t of tabs) if (isWeb(t.url)) webTabs.add(t.id);
+// Read back whenever the service worker wakes up, so no storage permission needed.
+const ready = chrome.action.getTitle({}).then((title) => {
   const m = TITLE.exec(title);
   if (m && MODES.includes(m[1])) { mode = m[1]; closedCount = +m[2]; }
 });
@@ -78,25 +76,19 @@ chrome.tabs.onCreated.addListener(refreshBadge); // also wakes the worker early 
 chrome.tabs.onUpdated.addListener(async (id, change) => {
   if (!change.url) return; // wait for the final URL of a loading tab
   await ready;
-  const wasWeb = webTabs.has(id);
-  if (isWeb(change.url)) webTabs.add(id); else webTabs.delete(id);
   if (mode !== "auto" || !isManaged(change.url)) return refreshBadge();
 
   const same = (await chrome.tabs.query({})).filter((t) => t.url === change.url);
   const self = same.find((t) => t.id === id);
   if (!self || same.length < 2) return refreshBadge();
-  const others = same.filter((t) => t.id !== id).sort((a, b) => a.id - b.id);
 
-  if (wasWeb) {
-    // Existing tab navigated into a duplicate: keep this tab, close the others.
-    await collapse(same, self);
-  } else {
-    // Brand new tab opened a duplicate: close it, focus the original.
-    await focus(await collapse(same, others[0]));
-  }
+  // The tab that just loaded this URL is the freshest copy: keep it, close the older ones.
+  // A pinned older copy wins instead, and is brought to the front.
+  const keeper = await collapse(same, self);
+  if (keeper.id !== id) await focus(keeper);
 });
 
-chrome.tabs.onRemoved.addListener((id) => { webTabs.delete(id); refreshBadge(); });
+chrome.tabs.onRemoved.addListener(refreshBadge);
 
 // How many tabs of a duplicate group would close (never the keeper, never pinned).
 function closable(g) {
@@ -104,7 +96,7 @@ function closable(g) {
   return g.filter((t) => t.id !== keeper.id && !t.pinned).length;
 }
 
-// Groups of exact duplicates across all windows, oldest first.
+// Groups of exact duplicates across all windows, newest first (highest tab id).
 async function dupGroups() {
   await ready;
   const groups = new Map();
@@ -113,10 +105,10 @@ async function dupGroups() {
     if (!groups.has(t.url)) groups.set(t.url, []);
     groups.get(t.url).push(t);
   }
-  return [...groups.values()].filter((g) => g.length > 1).map((g) => g.sort((a, b) => a.id - b.id));
+  return [...groups.values()].filter((g) => g.length > 1).map((g) => g.sort((a, b) => b.id - a.id));
 }
 
-// Close duplicates, keeping the oldest (or a pinned tab). `urls` limits it to those pages.
+// Close duplicates, keeping the newest (or a pinned tab). `urls` limits it to those pages.
 async function sweep(urls) {
   for (const g of await dupGroups()) if (!urls || urls.includes(g[0].url)) await collapse(g, g[0]);
 }

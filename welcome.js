@@ -13,7 +13,7 @@ function finish(text) {
 }
 
 function summary() {
-  $("msg").textContent = `You have ${plural(total(), "duplicate tab")} across ${plural(groups.length, "page")}. The oldest tab of each page is kept. How do you want to handle them?`;
+  $("msg").textContent = `You have ${plural(total(), "duplicate tab")} across ${plural(groups.length, "page")}. The newest tab of each page is kept. How do you want to handle them?`;
 }
 
 function addRow(g, oneByOne) {  // textContent only: page titles and URLs are untrusted
